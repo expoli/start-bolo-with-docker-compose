@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - "80:80"
+      #- "443:443" #如果你想启用HTTPS的话取消注释即可
+    depends_on:
+      - "mysql"
+    links:
+      - "bolo:bolo"
+    volumes:
+    # nginx 配置文件
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+    # ssl 证书存放路径
+      - ./nginx/ssl:/var/www/ssl
+    networks:
+      - bolo-net
+    container_name: "bolo-nginx"
+
+  mysql:
+    image: mysql:5.5
+    restart: always
+    expose:
+      - "3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    networks:
+      - bolo-net
+    environment:
+      - MYSQL_ROOT_PASSWORD="123456"
+      - MYSQL_USER="solo"
+      - MYSQL_DATABASE="solo"
+      - MYSQL_PASSWORD="123456"
+    command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    container_name: "bolo-mysql"
+
+  bolo:
+    image: tangcuyu/bolo-solo
+    restart: always
+    expose:
+      - "8080"
+    depends_on:
+      - "mysql"
+    links:
+      - "mysql:mysql"
+# 如果你想挂载markdown进行文章导入或者使用其它主题请注释掉相应的语句
+#    volumes:
+#      - ./web/markdowns:/opt/solo/markdowns:rw
+#      - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
+    networks:
+      - bolo-net
+    environment:
+      - RUNTIME_DB="MYSQL"
+      - JDBC_USERNAME="solo"
+      - JDBC_PASSWORD="123456"
+      - JDBC_DRIVER="com.mysql.cj.jdbc.Driver"
+      - JDBC_URL="jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+# 容器运行命令与solo一致可进行相关参考
+    command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
+    container_name: "bolo"
+
+networks:
+  bolo-net:
