@@ -13,7 +13,8 @@ services:
       - "bolo:bolo"
     volumes:
     # nginx 配置文件
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      # - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d/:/etc/nginx/conf.d
     # ssl 证书存放路径
       - ./nginx/ssl:/var/www/ssl
     networks:
@@ -21,7 +22,7 @@ services:
     container_name: "bolo-nginx"
 
   mysql:
-    image: mysql:5.5
+    image: mariadb:10.1
     restart: always
     expose:
       - "3306"
@@ -38,7 +39,7 @@ services:
     container_name: "bolo-mysql"
 
   bolo:
-    image: tangcuyu/bolo-solo
+    image: b3log/solo
     restart: always
     expose:
       - "8080"
@@ -46,10 +47,6 @@ services:
       - "mysql"
     links:
       - "mysql:mysql"
-# 如果你想挂载markdown进行文章导入或者使用其它主题请注释掉相应的语句
-#    volumes:
-#      - ./web/markdowns:/opt/solo/markdowns:rw
-#      - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
     networks:
       - bolo-net
     environment:
@@ -57,9 +54,8 @@ services:
       - JDBC_USERNAME="solo"
       - JDBC_PASSWORD="123456"
       - JDBC_DRIVER="com.mysql.cj.jdbc.Driver"
-      - JDBC_URL="jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-# 容器运行命令与solo一致可进行相关参考
-    command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
+      - JDBC_URL="jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    command: --listen_port=8080 --server_scheme=http --server_host=expoli.tech --server_port= 
     container_name: "bolo"
 
 networks:
