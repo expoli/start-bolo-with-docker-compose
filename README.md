@@ -4,6 +4,35 @@
 
 ## 快速开始
 
+### 服务器部署
+
+默认 bolo 的访问域名为 localhost，如果您想直接在本地在本地试用，并通过 localhost 进行访问、那么无需修改任何文件、直接参考 [本地快速部署测试](#本地快速部署测试)，即可。
+
+在进行服务器部署时，请根据需要修改 `docker-compose.yaml` 中的 `bolo` 服务中的 `command` 项。修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
+
+```yaml
+  bolo:
+    image: tangcuyu/bolo-solo:latest
+    restart: always
+    container_name: "bolo"
+...
+...
+    networks:
+      - bolo-net
+    command: --listen_port=8080 --server_scheme=http --server_host=(修改为你博客的域名或ip)  --server_port=
+```
+
+**启动参数说明：**
+
+- `--listen_port` ：进程监听端口
+- `--server_scheme` ：最终访问协议，如果反代服务启用了 HTTPS 这里也需要改为 https
+- `--server_host` ：最终访问域名或公网 IP，不要带端口
+- `--server_port` ：最终访问端口，使用浏览器默认的 80 或者 443 的话值留空即可
+
+详情请参考：[Solo 用户指南](https://hacpai.com/article/1492881378588)
+
+### 本地快速部署测试
+
 如果你只想体验一下那么可以根据下面的命令提示进行 bolo 的快速部署。
 
 1. **克隆本项目至本地**
