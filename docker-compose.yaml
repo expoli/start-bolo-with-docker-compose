@@ -4,59 +4,54 @@ services:
   nginx:
     image: nginx:latest
     restart: always
+    container_name: "solo-nginx"
     ports:
       - "80:80"
-      #- "443:443" #如果你想启用HTTPS的话取消注释即可
+      - "443:443"
     depends_on:
       - "mysql"
-    links:
+    links: 
       - "bolo:bolo"
     volumes:
-    # nginx 配置文件
-      # - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/conf.d/:/etc/nginx/conf.d
-    # ssl 证书存放路径
-      - ./nginx/ssl:/var/www/ssl
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - bolo-net
-    container_name: "bolo-nginx"
+
 
   mysql:
-    image: mariadb:10.1
+    image: mysql:5.5
     restart: always
+    container_name: "solo-mysql"
     expose:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
+    env_file:
+      - ./.mysql.env
     networks:
       - bolo-net
-    environment:
-      - MYSQL_ROOT_PASSWORD="123456"
-      - MYSQL_USER="solo"
-      - MYSQL_DATABASE="solo"
-      - MYSQL_PASSWORD="123456"
     command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
-    container_name: "bolo-mysql"
 
   bolo:
-    image: b3log/solo
+    image: tangcuyu/bolo-solo:latest
     restart: always
+    container_name: "bolo"
     expose:
       - "8080"
     depends_on:
       - "mysql"
     links:
       - "mysql:mysql"
+    # volumes: 
+    #   - ./web/markdowns:/opt/solo/markdowns:rw
+    #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
+    env_file:
+      - ./.solo.env
     networks:
       - bolo-net
-    environment:
-      - RUNTIME_DB="MYSQL"
-      - JDBC_USERNAME="solo"
-      - JDBC_PASSWORD="123456"
-      - JDBC_DRIVER="com.mysql.cj.jdbc.Driver"
-      - JDBC_URL="jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-    command: --listen_port=8080 --server_scheme=http --server_host=expoli.tech --server_port= 
-    container_name: "bolo"
+    command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
 
-networks:
+
+networks: 
   bolo-net:
