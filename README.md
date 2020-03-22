@@ -2,6 +2,8 @@
 
 本项目专注于使用 docker-compsoe 进行容器的编排，实现 bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时会走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性。
 
+**注意：本项目使用 nginx 的反向代理作为 bolo 的 web 服务器、先只支持一键式的http部署（默认占用了80端口）、如若需要启用https访问支持，请自行进行配置。**
+
 ## 快速开始
 
 ### 服务器部署
@@ -77,6 +79,16 @@ docker-compose down
 sudo rm start-bolo-with-docker-compose -rf
 ```
 
+### 访问测试
+
+再确认已经启动完成之后、使用浏览器访问您设置的对应域名即可完成博客的初始化。
+
+- bolo 初始化界面
+![bolo 初始化界面](image/2020-03-22_09-32-bolo-admin.png)
+
+- bolo 初始化完成界面
+![bolo 初始化完成界面](image/2020-03-22_09-41-bolo-init-success.png)
+
 ## 项目介绍
 
 ### 文件结构
@@ -97,6 +109,67 @@ sudo rm start-bolo-with-docker-compose -rf
 │   └── solo-nexmoe
 └── web
     └── markdowns # markdown 文件存放路径（使用markdown 文件初始化时bolo使用）详情参考 solo 导入markdown文件
+```
+
+### docker-compose.yaml
+
+```yaml
+version: "3"
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: always
+    container_name: "solo-nginx"
+    ports:
+      - "80:80"
+      # - "443:443"
+    depends_on:
+      - "mysql"
+    links: 
+      - "bolo:bolo"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - bolo-net
+
+  mysql:
+    image: mysql:5.5
+    restart: always
+    container_name: "solo-mysql"
+    expose:
+      - "3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    env_file:
+      - ./.mysql.env
+    networks:
+      - bolo-net
+    command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+
+  bolo:
+    image: tangcuyu/bolo-solo:latest
+    restart: always
+    container_name: "bolo"
+    expose:
+      - "8080"
+    depends_on:
+      - "mysql"
+    links:
+      - "mysql:mysql"
+    # 主题与文章挂载目录
+    # volumes: 
+    #   - ./web/markdowns:/opt/solo/markdowns:rw
+    #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
+    env_file:
+      - ./.bolo.env
+    networks:
+      - bolo-net
+    command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
+
+networks: 
+  bolo-net:
 ```
 
 ### mysql 容器环境变量
