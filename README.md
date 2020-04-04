@@ -6,6 +6,7 @@
 <img src="https://img.shields.io/github/last-commit/expoli/start-bolo-with-docker-compose.svg?style=flat-square">
 <img src="https://img.shields.io/github/issues-pr-closed/expoli/start-bolo-with-docker-compose.svg?style=flat-square">
 <img src="https://img.shields.io/github/downloads/expoli/start-bolo-with-docker-compose/total?style=flat-square">
+<br>
 <img src="https://img.shields.io/docker/cloud/automated/tangcuyu/bolo-solo?style=flat-square">
 <img src="https://img.shields.io/docker/cloud/build/tangcuyu/bolo-solo?style=flat-square">
 <img src="https://img.shields.io/docker/pulls/tangcuyu/bolo-solo.svg?style=flat-square">
