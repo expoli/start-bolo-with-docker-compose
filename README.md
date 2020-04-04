@@ -1,4 +1,18 @@
-# 使用 docker-compose 一键启动 bolo 博客
+<p align = "center">
+<img alt="Bolo" src="https://github.com/expoli/bolo-solo/raw/master/bolo-logo-256.png">
+<br><br>
+使用 docker-compose 一键启动 bolo 博客
+<br>
+<img src="https://img.shields.io/github/last-commit/expoli/start-bolo-with-docker-compose.svg?style=flat-square">
+<img src="https://img.shields.io/github/issues-pr-closed/expoli/start-bolo-with-docker-compose.svg?style=flat-square">
+<img src="https://img.shields.io/github/downloads/expoli/start-bolo-with-docker-compose/total?style=flat-square">
+<img src="https://img.shields.io/docker/pulls/tangcuyu/bolo-solo.svg?style=flat-square">
+<!-- <img src="https://img.shields.io/github/v/expoli/start-bolo-with-docker-compose?style=flat-square"> -->
+<!-- <img src="https://img.shields.io/github/issues/expoli/start-bolo-with-docker-compose?style=flat-square"> -->
+<!-- <img src="https://img.shields.io/github/commit-activity/y/expoli/start-bolo-with-docker-compose?style=flat-square"> -->
+</p>
+
+# 简介
 
 本项目专注于使用 docker-compsoe 进行容器的编排，实现 bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性。
 
