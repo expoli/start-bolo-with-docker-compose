@@ -81,6 +81,9 @@ sudo rm start-bolo-with-docker-compose -rf
 
 ### 访问测试
 
+<details>
+<summary>点击查看</summary>
+
 再确认已经启动完成之后、使用浏览器访问您设置的对应域名即可完成博客的初始化。
 
 - bolo 初始化界面
@@ -88,6 +91,7 @@ sudo rm start-bolo-with-docker-compose -rf
 
 - bolo 初始化完成界面
 ![bolo 初始化完成界面](image/2020-03-22_09-41-bolo-init-success.png)
+</details>
 
 ## 项目介绍
 
@@ -112,6 +116,9 @@ sudo rm start-bolo-with-docker-compose -rf
 ```
 
 ### docker-compose.yaml
+
+<details>
+<summary>点击查看docker-compose.yaml</summary>
 
 ```yaml
 version: "3"
@@ -171,6 +178,8 @@ services:
 networks: 
   bolo-net:
 ```
+
+</details>
 
 ### mysql 容器环境变量
 
