@@ -52,7 +52,25 @@
 
 详情请参考：[Solo 用户指南](https://hacpai.com/article/1492881378588)
 
-### 本地快速部署测试
+### 启用定时更新
+
+可使用 Linux 的定时任务实现定时更新。具体实现方式如下：
+
+1. 手动运行定时命令进行测试
+
+```bash
+cd /path/to/your/docker-compose && docker-compose pull && docker-compose down && docker-compose up -d
+```
+
+2. 确认运行无误之后将其添加至定时任务中
+
+编辑 `/var/spool/cron/你的用户名` 文件，将下面这一行添加至文件中即可。（每周五的凌晨2点钟进行更新）时间间隔可随意设置、写法可参考 https://crontab.guru/
+
+```shell
+0  2  *  *  5  cd /path/to/your/docker-compose && docker-compose pull && docker-compose down && docker-compose up -d
+```
+
+### 本地快速部署
 
 如果你只想体验一下那么可以根据下面的命令提示进行 bolo 的快速部署。
 
@@ -101,7 +119,7 @@ sudo rm start-bolo-with-docker-compose -rf
 ### 访问测试
 
 <details>
-<summary>点击查看</summary>
+<summary>点击查看访问测试</summary>
 
 再确认已经启动完成之后、使用浏览器访问您设置的对应域名即可完成博客的初始化。
 
@@ -112,7 +130,10 @@ sudo rm start-bolo-with-docker-compose -rf
 ![bolo 初始化完成界面](image/2020-03-22_09-41-bolo-init-success.png)
 </details>
 
-## 项目介绍
+## 详细介绍
+
+<details>
+<summary>点击查看项目介绍docker-compose.yaml</summary>
 
 ### 文件结构
 
@@ -226,3 +247,5 @@ JDBC_PASSWORD=solo123456
 JDBC_DRIVER=com.mysql.cj.jdbc.Driver
 JDBC_URL=jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 ```
+
+</details>
