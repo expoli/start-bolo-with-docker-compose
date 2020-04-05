@@ -72,7 +72,7 @@ cd /path/to/your/docker-compose && docker-compose pull && docker-compose down &&
 
 ### 本地快速部署
 
-如果你只想体验一下那么可以根据下面的命令提示进行 bolo 的快速部署。
+如果你只想体验一下 bolo ，那么可以根据下面的命令提示进行 bolo 的快速部署。
 
 1. **克隆本项目至本地**
 
@@ -133,7 +133,7 @@ sudo rm start-bolo-with-docker-compose -rf
 ## 详细介绍
 
 <details>
-<summary>点击查看项目介绍docker-compose.yaml</summary>
+<summary>点击查看项目介绍</summary>
 
 ### 文件结构
 
