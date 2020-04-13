@@ -32,8 +32,6 @@ services:
       - MYSQL_USER: solo
       - MYSQL_DATABASE: solo
       - MYSQL_PASSWORD: solo123456
-    # env_file:
-    #   - ./.mysql.env
     healthcheck:
       test: "/usr/local/mysql/bin/mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'"
       interval: 2s
@@ -64,8 +62,6 @@ services:
      - JDBC_PASSWORD: solo123456
      - JDBC_DRIVER: com.mysql.cj.jdbc.Driver
      - JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    # env_file:
-    #   - ./.bolo.env
     healthcheck:
       test: "nc -z localhost 8080 || exit 1"
       interval: 10s
