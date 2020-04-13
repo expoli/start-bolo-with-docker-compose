@@ -19,7 +19,7 @@
 
 # 简介
 
-本项目专注于使用 docker-compsoe 进行容器的编排，实现 bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性。
+本项目专注于使用 docker-compsoe 进行容器的编排，实现 bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性，同时也增加了容器的健康检查机制。
 
 **注意：本项目使用 nginx 的反向代理作为 bolo 的 web 服务器、目前支持一键式的http部署（默认占用了80端口）、如若需要启用https访问支持，请自行进行配置。**
 
@@ -115,6 +115,8 @@ docker-compose down
 ```shell
 sudo rm start-bolo-with-docker-compose -rf
 ```
+
+![运行结果](image/2020-04-13-docker-compose-ps.png)
 
 ### 访问测试
 
