@@ -1,4 +1,4 @@
-version: "3"
+version: "2.4"
 
 services:
   nginx:
@@ -10,7 +10,7 @@ services:
       # - "443:443"
     depends_on:
       bolo:
-        condition: service_healthy
+        condition: service_started
     links: 
       - "bolo:bolo"
     volumes:
@@ -22,18 +22,18 @@ services:
   mysql:
     image: mysql:5
     restart: always
-    container_name: "solo-mysql"
+    container_name: "bolo-mysql"
     expose:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD: root_passwd
-      - MYSQL_USER: solo
-      - MYSQL_DATABASE: solo
-      - MYSQL_PASSWORD: solo123456
+      MYSQL_ROOT_PASSWORD: root_passwd
+      MYSQL_USER: solo
+      MYSQL_DATABASE: solo
+      MYSQL_PASSWORD: solo123456
     healthcheck:
-      test: "/usr/local/mysql/bin/mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'"
+      test: "mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'" 
       interval: 2s
       timeout: 20s
       retries: 10
@@ -57,11 +57,11 @@ services:
     #   - ./web/markdowns:/opt/solo/markdowns:rw
     #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
     environment:
-     - RUNTIME_DB: MYSQL
-     - JDBC_USERNAME: solo
-     - JDBC_PASSWORD: solo123456
-     - JDBC_DRIVER: com.mysql.cj.jdbc.Driver
-     - JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      RUNTIME_DB: MYSQL
+      JDBC_USERNAME: solo
+      JDBC_PASSWORD: solo123456
+      JDBC_DRIVER: com.mysql.cj.jdbc.Driver
+      JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     healthcheck:
       test: "nc -z localhost 8080 || exit 1"
       interval: 10s
