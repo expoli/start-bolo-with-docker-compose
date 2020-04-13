@@ -26,8 +26,13 @@ services:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
-    env_file:
-      - ./.mysql.env
+    environment:
+      - MYSQL_ROOT_PASSWORD: expoli
+      - MYSQL_USER: solo
+      - MYSQL_DATABASE: solo
+      - MYSQL_PASSWORD: solo123456
+    # env_file:
+    #   - ./.mysql.env
     networks:
       - bolo-net
     command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
@@ -46,8 +51,14 @@ services:
     # volumes: 
     #   - ./web/markdowns:/opt/solo/markdowns:rw
     #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
-    env_file:
-      - ./.bolo.env
+    environment:
+     - RUNTIME_DB: MYSQL
+     - JDBC_USERNAME: solo
+     - JDBC_PASSWORD: solo123456
+     - JDBC_DRIVER: com.mysql.cj.jdbc.Driver
+     - JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    # env_file:
+    #   - ./.bolo.env
     networks:
       - bolo-net
     command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
