@@ -1,15 +1,16 @@
-version: "3"
+version: "2.4"
 
 services:
   nginx:
     image: nginx:latest
     restart: always
-    container_name: "solo-nginx"
+    container_name: "bolo-nginx"
     ports:
       - "80:80"
       # - "443:443"
     depends_on:
-      - "mysql"
+      bolo:
+        condition: service_started
     links: 
       - "bolo:bolo"
     volumes:
@@ -19,15 +20,23 @@ services:
       - bolo-net
 
   mysql:
-    image: mysql:5.5
+    image: mysql:5
     restart: always
-    container_name: "solo-mysql"
+    container_name: "bolo-mysql"
     expose:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
-    env_file:
-      - ./.mysql.env
+    environment:
+      MYSQL_ROOT_PASSWORD: root_passwd
+      MYSQL_USER: solo
+      MYSQL_DATABASE: solo
+      MYSQL_PASSWORD: solo123456
+    healthcheck:
+      test: "mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'" 
+      interval: 2s
+      timeout: 20s
+      retries: 10
     networks:
       - bolo-net
     command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
@@ -39,15 +48,25 @@ services:
     expose:
       - "8080"
     depends_on:
-      - "mysql"
+      mysql:
+        condition: service_healthy
     links:
       - "mysql:mysql"
     # 主题与文章挂载目录
     # volumes: 
     #   - ./web/markdowns:/opt/solo/markdowns:rw
     #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
-    env_file:
-      - ./.bolo.env
+    environment:
+      RUNTIME_DB: MYSQL
+      JDBC_USERNAME: solo
+      JDBC_PASSWORD: solo123456
+      JDBC_DRIVER: com.mysql.cj.jdbc.Driver
+      JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    healthcheck:
+      test: "nc -z localhost 8080 || exit 1"
+      interval: 10s
+      timeout: 20s
+      retries: 10
     networks:
       - bolo-net
     command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
