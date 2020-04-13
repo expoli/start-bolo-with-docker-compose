@@ -143,7 +143,7 @@ sudo rm start-bolo-with-docker-compose -rf
 ├── mysql # mysql 数据库
 │   └── data
 ├── nginx
-│   ├── conf.d # nginx 子配置文件目录、可添加自定义配置文件（以.conf结尾）
+│   ├── conf.d/bolo.conf # nginx 子配置文件目录、可添加自定义配置文件（以.conf结尾）
 │   ├── nginx.conf
 │   └── ssl
 ├── README.md
