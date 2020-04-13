@@ -142,13 +142,11 @@ sudo rm start-bolo-with-docker-compose -rf
 ├── LICENSE
 ├── mysql # mysql 数据库
 │   └── data
-├── .mysql.env # mysql 容器环境变量配置文件
 ├── nginx
 │   ├── conf.d # nginx 子配置文件目录、可添加自定义配置文件（以.conf结尾）
 │   ├── nginx.conf
 │   └── ssl
 ├── README.md
-├── .bolo.env # bolo 容器环境变量配置文件
 ├── theme # 主题文件存放路径、如需挂载自定义主题、请在 docker-compose.yaml 中做好相应配置
 │   └── solo-nexmoe
 └── web
@@ -161,18 +159,19 @@ sudo rm start-bolo-with-docker-compose -rf
 <summary>点击查看docker-compose.yaml</summary>
 
 ```yaml
-version: "3"
+version: "2.4"
 
 services:
   nginx:
     image: nginx:latest
     restart: always
-    container_name: "solo-nginx"
+    container_name: "bolo-nginx"
     ports:
       - "80:80"
       # - "443:443"
     depends_on:
-      - "mysql"
+      bolo:
+        condition: service_started
     links: 
       - "bolo:bolo"
     volumes:
@@ -182,15 +181,23 @@ services:
       - bolo-net
 
   mysql:
-    image: mysql:5.5
+    image: mysql:5
     restart: always
-    container_name: "solo-mysql"
+    container_name: "bolo-mysql"
     expose:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
-    env_file:
-      - ./.mysql.env
+    environment:
+      MYSQL_ROOT_PASSWORD: root_passwd
+      MYSQL_USER: solo
+      MYSQL_DATABASE: solo
+      MYSQL_PASSWORD: solo123456
+    healthcheck:
+      test: "mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'" 
+      interval: 2s
+      timeout: 20s
+      retries: 10
     networks:
       - bolo-net
     command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
@@ -202,15 +209,25 @@ services:
     expose:
       - "8080"
     depends_on:
-      - "mysql"
+      mysql:
+        condition: service_healthy
     links:
       - "mysql:mysql"
     # 主题与文章挂载目录
     # volumes: 
     #   - ./web/markdowns:/opt/solo/markdowns:rw
     #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
-    env_file:
-      - ./.bolo.env
+    environment:
+      RUNTIME_DB: MYSQL
+      JDBC_USERNAME: solo
+      JDBC_PASSWORD: solo123456
+      JDBC_DRIVER: com.mysql.cj.jdbc.Driver
+      JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    healthcheck:
+      test: "nc -z localhost 8080 || exit 1"
+      interval: 10s
+      timeout: 20s
+      retries: 10
     networks:
       - bolo-net
     command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
@@ -223,29 +240,29 @@ networks:
 
 ### mysql 容器环境变量
 
-下面是默认的配置、可根据个人需要进行更该、但需要确保与bolo容器的环境变量值一致、保证数据库连接的有效性。
+下面是默认环境变量的配置、可根据个人需要进行更改、但需要确保与bolo容器的环境变量值一致、确保数据库连接的有效性。
 
-```shell
-# cat .mysql.env
+**注意：你应该将数据库密码修改成强密码！！！**
 
-MYSQL_ROOT_PASSWORD=expoli
-MYSQL_USER=solo
-MYSQL_DATABASE=solo
-MYSQL_PASSWORD=solo123456
+```
+MYSQL_ROOT_PASSWORD: root_passwd
+MYSQL_USER: solo
+MYSQL_DATABASE: solo
+MYSQL_PASSWORD: solo123456
 ```
 
 ### bolo 容器环境变量
 
 下面是默认的配置、可根据个人需要进行更该、但需要确保与bolo容器的环境变量值一致、保证数据库连接的有效性。
 
-```shell
-# cat .bolo.env
+**注意：你应该将数据库密码修改成强密码！！！**
 
-RUNTIME_DB=MYSQL
-JDBC_USERNAME=solo
-JDBC_PASSWORD=solo123456
-JDBC_DRIVER=com.mysql.cj.jdbc.Driver
-JDBC_URL=jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+```shell
+RUNTIME_DB: MYSQL
+JDBC_USERNAME: solo
+JDBC_PASSWORD: solo123456
+JDBC_DRIVER: com.mysql.cj.jdbc.Driver
+JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 ```
 
 </details>

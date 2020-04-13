@@ -4,7 +4,7 @@ services:
   nginx:
     image: nginx:latest
     restart: always
-    container_name: "solo-nginx"
+    container_name: "bolo-nginx"
     ports:
       - "80:80"
       # - "443:443"
