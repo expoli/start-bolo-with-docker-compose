@@ -39,28 +39,34 @@
 
 默认 bolo 的访问域名为 localhost，如果您想直接在本地在本地试用，并通过 localhost 进行访问、那么无需修改任何文件、直接参考 [本地快速部署测试](#本地快速部署测试)，即可。
 
-在进行服务器部署时，请根据需要修改 `docker-compose.yaml` 中的 `bolo` 服务中的 `command` 项。 **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
+在进行服务器部署时，请根据需要修改 `bolo-env.env` **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
 
-```yaml
-  mysql:
-...
-...
-# mysql 健康检查机制
-  healthcheck:
-      test: "mysql --user=root --password=(修改为你数据库root密码) --execute 'SHOW DATABASES;'" 
-      interval: 2s
-      timeout: 20s
-      retries: 10
+```
+# mysql env
+# 建议使用强密码
+MYSQL_ROOT_PASSWORD=new_root_password
+MYSQL_USER=solo
+MYSQL_DATABASE=solo
+MYSQL_PASSWORD=solo123456
 
-  bolo:
-    image: tangcuyu/bolo-solo:latest
-    restart: always
-    container_name: "bolo"
-...
-...
-    networks:
-      - bolo-net
-    command: --listen_port=8080 --server_scheme=http --server_host=(修改为你博客的域名或ip)  --server_port=
+# bolo env
+# 请同步更新为上方MYSQL密码
+RUNTIME_DB=MYSQL
+JDBC_USERNAME=solo
+JDBC_PASSWORD=solo123456
+JDBC_DRIVER=com.mysql.cj.jdbc.Driver
+JDBC_URL=jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+
+#
+# 需要修改为你的博客域名
+#
+SERVER_HOST=localhost
+
+# 你一般不需要修改
+SERVER_PORT=
+SERVER_SCHEME=http
+LISTEN_PORT=8080
+
 ```
 
 **启动参数说明：**
@@ -72,63 +78,51 @@
 
 详情请参考：[Solo 用户指南](https://hacpai.com/article/1492881378588)
 
-### 启用定时更新
-
-可使用 Linux 的定时任务实现定时更新。具体实现方式如下：
-
-1. 手动运行定时命令进行测试
-
-```bash
-cd /path/to/your/docker-compose && docker-compose pull && docker-compose down && docker-compose up -d
-```
-
-2. 确认运行无误之后将其添加至定时任务中
-
-编辑 `/var/spool/cron/你的用户名` 文件，将下面这一行添加至文件中即可。（每周五的凌晨2点钟进行更新）时间间隔可随意设置、写法可参考 https://crontab.guru/
-
-```shell
-0  2  *  *  5  cd /path/to/your/docker-compose && docker-compose pull && docker-compose down && docker-compose up -d
-```
-
 ### 本地快速部署
 
 如果你只想体验一下 bolo ，那么可以根据下面的命令提示进行 bolo 的快速部署。
 
-1. **克隆本项目至本地**
+- **克隆本项目至本地**
 
 ```shell
 git clone https://github.com/expoli/start-bolo-with-docker-compose.git
 ```
 
-1. **进入至项目跟路径**
+- **进入至项目根路径**
 
 ```shell
 cd start-bolo-with-docker-compose
 ```
 
-3. **使用 docker-compose 启动 bolo**
+- **加载修改后的环境变量**
+
+```shell
+export $(cat ./bolo-env.env )
+```
+
+- **使用 docker-compose 启动 bolo**
 
 ```shell
 # 后台启动
-docker-compose up -d
+export $(cat ./bolo-env.env ) && docker-compose up -d
 
 # 前台方式启动可以看到日志输出、方便进行排错
-docker-compose up
+export $(cat ./bolo-env.env ) && docker-compose up
 ```
 
-4. **更新容器**
+- **更新容器**
 
 ```shell
-docker-compose pull && docker-compose up -d
+export $(cat ./bolo-env.env ) && docker-compose pull && docker-compose up -d
 ```
 
-5. **删除容器与docker网络（但保留mysql数据库）**
+- **删除容器与 docker 网络（但保留mysql数据库）**
 
 ```shell
-docker-compose down
+export $(cat ./bolo-env.env ) && docker-compose down
 ```
 
-6. **完全删除**
+- **完全删除**
 
 如果你想完全卸载 bolo 只需要删除本项目文件夹即可、**因为mysql数据库文件挂载至了本项目的mysql自文件夹**，这种方式也防止因不熟悉docker-compse导致了数据的丢失。
 
@@ -136,6 +130,27 @@ docker-compose down
 sudo rm start-bolo-with-docker-compose -rf
 ```
 
+### 启用定时更新
+
+<details>
+<summary>定时更新</summary>
+
+可使用 Linux 的定时任务实现定时更新。具体实现方式如下：
+
+1. 手动运行定时命令进行测试
+
+```bash
+cd /path/to/your/docker-compose && export $(cat ./bolo-env.env ) && docker-compose pull && docker-compose down && docker-compose up -d
+```
+
+2. 确认运行无误之后将其添加至定时任务中
+
+编辑 `/var/spool/cron/你的用户名` 文件，将下面这一行添加至文件中即可。（每周五的凌晨2点钟进行更新）时间间隔可随意设置、写法可参考 https://crontab.guru/
+
+```shell
+0  2  *  *  5  cd /path/to/your/docker-compose && export $(cat ./bolo-env.env ) && docker-compose pull && docker-compose down && docker-compose up -d
+```
+</details>
 
 ### 访问测试
 
@@ -159,13 +174,16 @@ sudo rm start-bolo-with-docker-compose -rf
 ### 文件结构
 
 ```shell
-├── .gitignore
+.
+├── bolo-env.env
+├── docker-compose.yaml
+├── image
 ├── LICENSE
 ├── mysql # mysql 数据库
 │   └── data
 ├── nginx
 │   ├── conf.d/bolo.conf # nginx 子配置文件目录、可添加自定义配置文件（以.conf结尾）
-│   ├── nginx.conf
+│   |── nginx.conf
 │   └── ssl
 ├── README.md
 ├── theme # 主题文件存放路径、如需挂载自定义主题、请在 docker-compose.yaml 中做好相应配置
@@ -209,13 +227,10 @@ services:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root_passwd
-      MYSQL_USER: solo
-      MYSQL_DATABASE: solo
-      MYSQL_PASSWORD: solo123456
+    env_file:
+      - bolo-env.env
     healthcheck:
-      test: "mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'" 
+      test: "mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --execute 'SHOW DATABASES;'" 
       interval: 2s
       timeout: 20s
       retries: 10
@@ -238,12 +253,8 @@ services:
     # volumes: 
     #   - ./web/markdowns:/opt/solo/markdowns:rw
     #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
-    environment:
-      RUNTIME_DB: MYSQL
-      JDBC_USERNAME: solo
-      JDBC_PASSWORD: solo123456
-      JDBC_DRIVER: com.mysql.cj.jdbc.Driver
-      JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    env_file:
+      - bolo-env.env
     healthcheck:
       test: "nc -z localhost 8080 || exit 1"
       interval: 10s
@@ -251,7 +262,7 @@ services:
       retries: 10
     networks:
       - bolo-net
-    command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
+    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT}
 
 networks: 
   bolo-net:
@@ -259,35 +270,5 @@ networks:
 
 </details>
 
-### mysql 容器环境变量
-
-下面是默认环境变量的配置、可根据个人需要进行更改、但需要确保与bolo容器的环境变量值一致、确保数据库连接的有效性。
-
-**注意：你应该将数据库密码修改成强密码！！！**
-
-```
-MYSQL_ROOT_PASSWORD: root_passwd
-MYSQL_USER: solo
-MYSQL_DATABASE: solo
-MYSQL_PASSWORD: solo123456
-```
-
-### mysql 健康检查
-
-
-
-### bolo 容器环境变量
-
-下面是默认的配置、可根据个人需要进行更该、但需要确保与bolo容器的环境变量值一致、保证数据库连接的有效性。
-
-**注意：你应该将数据库密码修改成强密码！！！**
-
-```shell
-RUNTIME_DB: MYSQL
-JDBC_USERNAME: solo
-JDBC_PASSWORD: solo123456
-JDBC_DRIVER: com.mysql.cj.jdbc.Driver
-JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-```
 
 </details>
