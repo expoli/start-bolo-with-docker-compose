@@ -25,13 +25,33 @@
 
 ## 快速开始
 
+### 新特性：容器健康状态检查
+
+此容器健康检查机制是基于 `docker-compose.yaml` 的，最新的 `docker-compose.yaml` 也经过了调整，重新更改为环境变量的方式，如果你更喜欢使用变量文件可以在 [releases](https://github.com/expoli/start-bolo-with-docker-compose/releases) 界面下载 `v1.0` 版本。
+
+**注意：同时因为这只是修改了 `docker-compose.yaml` 原容器的构建方式并没有改变，所以原方式依旧有效！**
+
+- 新特性运行结果
+
+![运行结果](image/2020-04-13-docker-compose-ps.png)
+
 ### 服务器部署
 
 默认 bolo 的访问域名为 localhost，如果您想直接在本地在本地试用，并通过 localhost 进行访问、那么无需修改任何文件、直接参考 [本地快速部署测试](#本地快速部署测试)，即可。
 
-在进行服务器部署时，请根据需要修改 `docker-compose.yaml` 中的 `bolo` 服务中的 `command` 项。修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
+在进行服务器部署时，请根据需要修改 `docker-compose.yaml` 中的 `bolo` 服务中的 `command` 项。 **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
 
 ```yaml
+  mysql:
+...
+...
+# mysql 健康检查机制
+  healthcheck:
+      test: "mysql --user=root --password=(修改为你数据库root密码) --execute 'SHOW DATABASES;'" 
+      interval: 2s
+      timeout: 20s
+      retries: 10
+
   bolo:
     image: tangcuyu/bolo-solo:latest
     restart: always
@@ -116,7 +136,6 @@ docker-compose down
 sudo rm start-bolo-with-docker-compose -rf
 ```
 
-![运行结果](image/2020-04-13-docker-compose-ps.png)
 
 ### 访问测试
 
@@ -252,6 +271,10 @@ MYSQL_USER: solo
 MYSQL_DATABASE: solo
 MYSQL_PASSWORD: solo123456
 ```
+
+### mysql 健康检查
+
+
 
 ### bolo 容器环境变量
 
