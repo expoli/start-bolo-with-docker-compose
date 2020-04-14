@@ -27,13 +27,10 @@ services:
       - "3306"
     volumes:
       - ./mysql/data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root_passwd
-      MYSQL_USER: solo
-      MYSQL_DATABASE: solo
-      MYSQL_PASSWORD: solo123456
+    env_file:
+      - bolo-env.env
     healthcheck:
-      test: "mysql --user=root --password=root_passwd --execute 'SHOW DATABASES;'" 
+      test: "mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --execute 'SHOW DATABASES;'" 
       interval: 2s
       timeout: 20s
       retries: 10
@@ -56,12 +53,8 @@ services:
     # volumes: 
     #   - ./web/markdowns:/opt/solo/markdowns:rw
     #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
-    environment:
-      RUNTIME_DB: MYSQL
-      JDBC_USERNAME: solo
-      JDBC_PASSWORD: solo123456
-      JDBC_DRIVER: com.mysql.cj.jdbc.Driver
-      JDBC_URL: jdbc:mysql://mysql:3306/solo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    env_file:
+      - bolo-env.env
     healthcheck:
       test: "nc -z localhost 8080 || exit 1"
       interval: 10s
@@ -69,7 +62,7 @@ services:
       retries: 10
     networks:
       - bolo-net
-    command: --listen_port=8080 --server_scheme=http --server_host=localhost --server_port=
+    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT}
 
 networks: 
   bolo-net:
