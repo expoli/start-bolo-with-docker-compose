@@ -130,48 +130,6 @@ export $(cat ./bolo-env.env ) && docker-compose down
 sudo rm start-bolo-with-docker-compose -rf
 ```
 
-### 启用HTTPS
-
-**注意：启用HTTPS时需先备好证书文件，并将公私钥文件，重命名至 `nginx/ssl/bolo.key` 与 `nginx/ssl/bolo.pem` 覆盖默认示例文件。**
-
-1. 修改 `nginx/conf.d/bolo.conf` 取消相关注释
-
-```conf
-    ###### HTTPS #######
-    listen 443 ssl http2
-
-    # HTTP_TO_HTTPS_START
-    # HTTP 强制跳转至 HTTPS
-    # if ($server_port !~ 443){
-    #      rewrite ^(/.*)$ https://$host$1 permanent;
-    # }
-    #HTTP_TO_HTTPS_END
-
-    ssl_certificate         /var/www/ssl/bolo.pem;
-    ssl_certificate_key     /var/www/ssl/bolo.key;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
-    ssl_ciphers ALL:!aNULL:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
-    ssl_early_data on;
-    ssl_prefer_server_ciphers on;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-    error_page 497  https://$host$request_uri;
-    ###### HTTPS #######
-```
-
-2. 修改 `docker-compose.yaml` 取消注释，监听 443 端口
-
-```yaml
-services:
-  nginx:
-    image: nginx:latest
-    restart: always
-    container_name: "bolo-nginx"
-    ports:
-      - "80:80"
-      - "443:443"
-```
-
 ### 启用定时更新
 
 <details>
