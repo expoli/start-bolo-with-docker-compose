@@ -78,6 +78,63 @@ LISTEN_PORT=8080
 
 详情请参考：[Solo 用户指南](https://hacpai.com/article/1492881378588)
 
+### 启用HTTPS
+
+**注意：启用HTTPS时需先备好证书文件，并将公私钥文件，重命名至 `nginx/ssl/bolo.key` 与 `nginx/ssl/bolo.pem` 覆盖默认示例文件。**
+
+<details>
+<summary>启用HTTPS</summary>
+
+1. 修改 `nginx/conf.d/bolo.conf` 取消相关注释
+
+```conf
+    ###### HTTPS #######
+    listen 443 ssl http2
+
+    # HTTP_TO_HTTPS_START
+    # HTTP 强制跳转至 HTTPS
+    # if ($server_port !~ 443){
+    #      rewrite ^(/.*)$ https://$host$1 permanent;
+    # }
+    #HTTP_TO_HTTPS_END
+
+    ssl_certificate         /var/www/ssl/bolo.pem;
+    ssl_certificate_key     /var/www/ssl/bolo.key;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers ALL:!aNULL:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+    ssl_early_data on;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    error_page 497  https://$host$request_uri;
+    ###### HTTPS #######
+```
+
+2. 修改 `docker-compose.yaml` 取消注释，监听 443 端口
+
+```yaml
+services:
+  nginx:
+    image: nginx:latest
+    restart: always
+    container_name: "bolo-nginx"
+    ports:
+      - "80:80"
+      - "443:443"
+```
+
+3. 修改 `bolo-env.env` 
+
+```
+SERVER_PORT=
+# HTTP 修改为HTTPS
+SERVER_SCHEME=https
+LISTEN_PORT=8080
+```
+
+4. **根据 本地快速部署 重新启动 bolo**
+</details>
+
 ### 本地快速部署
 
 如果你只想体验一下 bolo ，那么可以根据下面的命令提示进行 bolo 的快速部署。
@@ -128,48 +185,6 @@ export $(cat ./bolo-env.env ) && docker-compose down
 
 ```shell
 sudo rm start-bolo-with-docker-compose -rf
-```
-
-### 启用HTTPS
-
-**注意：启用HTTPS时需先备好证书文件，并将公私钥文件，重命名至 `nginx/ssl/bolo.key` 与 `nginx/ssl/bolo.pem` 覆盖默认示例文件。**
-
-1. 修改 `nginx/conf.d/bolo.conf` 取消相关注释
-
-```conf
-    ###### HTTPS #######
-    listen 443 ssl http2
-
-    # HTTP_TO_HTTPS_START
-    # HTTP 强制跳转至 HTTPS
-    # if ($server_port !~ 443){
-    #      rewrite ^(/.*)$ https://$host$1 permanent;
-    # }
-    #HTTP_TO_HTTPS_END
-
-    ssl_certificate         /var/www/ssl/bolo.pem;
-    ssl_certificate_key     /var/www/ssl/bolo.key;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
-    ssl_ciphers ALL:!aNULL:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
-    ssl_early_data on;
-    ssl_prefer_server_ciphers on;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-    error_page 497  https://$host$request_uri;
-    ###### HTTPS #######
-```
-
-2. 修改 `docker-compose.yaml` 取消注释，监听 443 端口
-
-```yaml
-services:
-  nginx:
-    image: nginx:latest
-    restart: always
-    container_name: "bolo-nginx"
-    ports:
-      - "80:80"
-      - "443:443"
 ```
 
 ### 启用定时更新
@@ -227,6 +242,8 @@ cd /path/to/your/docker-compose && export $(cat ./bolo-env.env ) && docker-compo
 │   ├── conf.d/bolo.conf # nginx 子配置文件目录、可添加自定义配置文件（以.conf结尾）
 │   |── nginx.conf
 │   └── ssl
+│       ├── bolo.key
+│       └── bolo.pem
 ├── README.md
 ├── theme # 主题文件存放路径、如需挂载自定义主题、请在 docker-compose.yaml 中做好相应配置
 │   └── solo-nexmoe
@@ -258,6 +275,8 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # HTTPS 证书挂载配置
+      - ./nginx/ssl:/var/www/ssl:ro
     networks:
       - bolo-net
 
