@@ -227,6 +227,8 @@ cd /path/to/your/docker-compose && export $(cat ./bolo-env.env ) && docker-compo
 │   ├── conf.d/bolo.conf # nginx 子配置文件目录、可添加自定义配置文件（以.conf结尾）
 │   |── nginx.conf
 │   └── ssl
+│       ├── bolo.key
+│       └── bolo.pem
 ├── README.md
 ├── theme # 主题文件存放路径、如需挂载自定义主题、请在 docker-compose.yaml 中做好相应配置
 │   └── solo-nexmoe
@@ -258,6 +260,8 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # HTTPS 证书挂载配置
+      - ./nginx/ssl:/var/www/ssl:ro
     networks:
       - bolo-net
 
