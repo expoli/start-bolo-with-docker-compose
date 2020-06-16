@@ -25,6 +25,12 @@
 
 ## 快速开始
 
+### 安装 Dcoker 以及 docker-compose 运行环境
+
+[1. 安装 Docker](https://docs.docker.com/engine/install/)
+
+[2. 安装 docker-compose](https://docs.docker.com/compose/install/)
+
 ### 新特性：容器健康状态检查
 
 此容器健康检查机制是基于 `docker-compose.yaml` 的，最新的 `docker-compose.yaml` 也经过了调整，重新更改为环境变量的方式，如果你更喜欢使用变量文件可以在 [releases](https://github.com/expoli/start-bolo-with-docker-compose/releases) 界面下载 `v1.0` 版本。
