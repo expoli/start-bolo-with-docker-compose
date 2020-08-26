@@ -1,5 +1,5 @@
 <p align = "center">
-<img alt="Bolo" src="https://github.com/expoli/bolo-solo/raw/master/bolo-logo-256.png">
+<img alt="Bolo" src="../start-bolo-with-docker-compose/image/bolo-circle.png">
 <br><br>
 使用 docker-compose 一键启动 bolo 博客
 <br>
@@ -329,8 +329,15 @@ services:
       retries: 10
     networks:
       - bolo-net
-    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT}
+    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT} --lute_http=http://lute:8249
 
+  lute-http:
+    image: b3log/lute-http
+    restart: always 
+    expose: 
+      - "8249"
+    container_name: "lute"
+    
 networks: 
   bolo-net:
 ```
