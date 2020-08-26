@@ -1,5 +1,5 @@
 <p align = "center">
-<img alt="Bolo" src="../start-bolo-with-docker-compose/image/bolo-circle.png">
+<img alt="Bolo" src="image/bolo-circle.png">
 <br><br>
 使用 docker-compose 一键启动 bolo 博客
 <br>
