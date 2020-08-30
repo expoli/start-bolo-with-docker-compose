@@ -1,0 +1,50 @@
+version: "2"
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: always
+    container_name: "bolo-nginx"
+    ports:
+      - "80:80"
+      # - "443:443"
+    depends_on:
+      bolo:
+        condition: service_started
+    links: 
+      - "bolo:bolo"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # HTTPS 证书挂载配置
+      - ./nginx/ssl:/var/www/ssl:ro
+    networks:
+      - bolo-net
+
+  bolo:
+    image: tangcuyu/bolo-solo:latest
+    restart: always
+    container_name: "bolo"
+    expose:
+      - "8080"
+    links:
+      - "mysql:mysql"
+    # 主题与文章挂载目录
+    # volumes: 
+    #   - ./web/markdowns:/opt/solo/markdowns:rw
+    #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
+    env_file:
+      - bolo-env-host-mysql.env
+    networks:
+      - bolo-net
+    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT} --lute_http=http://lute:8249
+
+  lute-http:
+    image: b3log/lute-http
+    restart: always 
+    expose: 
+      - "8249"
+    container_name: "lute"
+
+networks: 
+  bolo-net:
