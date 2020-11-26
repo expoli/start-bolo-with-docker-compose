@@ -20,12 +20,14 @@ services:
     restart: always
     volumes:
       - bolo:/var/www/html:ro
-    environment:
-      - VIRTUAL_HOST=expoli.tech
-      - LETSENCRYPT_HOST=expoli.tech
-      - LETSENCRYPT_EMAIL=me@expoli.tech
+    # environment:
+    #   - VIRTUAL_HOST=
+    #   - LETSENCRYPT_HOST=
+    #   - LETSENCRYPT_EMAIL=
     depends_on:
       - bolo
+    env_file:
+      - letsencrypt.env
     networks:
       - proxy-tier
       - default
@@ -56,8 +58,8 @@ services:
       - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - DEFAULT_EMAIL=me@expoli.tech
+    # environment:
+    #   - DEFAULT_EMAIL=
     networks:
       - proxy-tier
     depends_on:
