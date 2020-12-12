@@ -130,7 +130,7 @@ export $(cat ./bolo-env.env ) && docker-compose down
 
 - **完全删除  危险！！！**
 
-如果你想完全卸载 bolo 只需要删除本项目文件夹即可、**因为mysql数据库文件挂载至了本项目的mysql自文件夹**，这种方式也防止因不熟悉docker-compse导致了数据的丢失。
+如果你想完全卸载 bolo 只需要运行以下命令，此命令会删除 MySQL 数据卷 **危险**、**因为mysql数据库文件放在了docker volume里面**
 
 ```shell
 export $(cat ./bolo-env.env ) && docker-compose down --volume
