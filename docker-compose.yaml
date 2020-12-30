@@ -58,6 +58,7 @@ services:
       - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    dns: 8.8.8.8
     # environment:
     #   - DEFAULT_EMAIL=
     networks:
@@ -72,6 +73,7 @@ services:
       - "8080"
     env_file:
       - bolo-env.env
+    dns: 8.8.8.8
     command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT} --lute_http=http://lute:8249
     depends_on:
       - db
