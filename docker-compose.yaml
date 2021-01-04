@@ -35,11 +35,13 @@ services:
   proxy:
     build: ./proxy
     restart: always
+    container_name: bolo_nginx_proxy
     ports:
       - 80:80
       - 443:443
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen: "true"
     volumes:
       - certs:/etc/nginx/certs:ro
       - vhost.d:/etc/nginx/vhost.d
@@ -59,7 +61,8 @@ services:
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
     dns: 8.8.8.8
-    # environment:
+    environment:
+      - NGINX_DOCKER_GEN_CONTAINER=bolo_nginx_proxy   # nginx 容器名称
     #   - DEFAULT_EMAIL=
     networks:
       - proxy-tier
