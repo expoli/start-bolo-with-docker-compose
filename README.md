@@ -123,7 +123,7 @@ rm start-bolo-with-docker-compose -rf
 
 ### 迁移
 
-可根据docker官方 volume 数据迁移指导进行数据迁移。也可直接 dump 出数据库表，在新机器上进行导入。
+因为 mysql 的相关数据直接映射到了本地所以**直接打包文件夹**、然后在新机器上**直接解压启动**。
 
 ```shell
 # Backup
