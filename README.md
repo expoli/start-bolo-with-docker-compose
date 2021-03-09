@@ -33,7 +33,7 @@
 
 ### 服务器部署
 
-默认 bolo 的访问域名为 expoli.tech，请根据需要同步修改 `bolo-env.env` 与 `letsencrypt.env` 中的网址与邮件地址， **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
+默认 bolo 的访问域名为 expoli.tech，请根据需要同步修改 `bolo-env.env` 中的各环境变量， **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [本地快速部署测试](#本地快速部署测试)，进行后续步骤即可。
 
 ```
 # mysql env
@@ -51,17 +51,6 @@ JDBC_PASSWORD=bolo123456
 JDBC_DRIVER=com.mysql.cj.jdbc.Driver
 JDBC_URL=jdbc:mysql://db:3306/bolo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 
-
-#
-# 需要修改为你的博客域名
-#
-SERVER_HOST=expoli.tech
-
-# 你一般不需要修改
-SERVER_PORT=
-SERVER_SCHEME=https
-LISTEN_PORT=8080
-
 ```
 
 **启动参数说明：**
@@ -77,13 +66,15 @@ LISTEN_PORT=8080
 
 **注意：启用HTTPS时需保证你的主机拥有公网IP且、80 443 端口可以被正常访问，否则有可能自动颁发证书失败**
 
-修改相应的字段值为自己所需，各环境变量所代表含义请参阅 https://github.com/nginx-proxy/docker-letsencrypt-nginx-proxy-companion
+修改相应的字段值为自己所需，可对 `docker-compose.yaml` 中的 `blog.example.org` 进行批量替换
 
-```
-VIRTUAL_HOST=expoli.tech
-LETSENCRYPT_HOST=expoli.tech
-LETSENCRYPT_EMAIL=me@expoli.tech
+```bash
+# 请修改为自己的邮箱地址
+- "--certificatesresolvers.myresolver.acme.email=me@example.org"
 
+# 请将 blog.example.org 修改为你自己的博客域名
+command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org --server_port=443 --lute_http=http://lute:8249
+- traefik.http.routers.bolo.rule=Host(`blog.example.org`)
 ```
 
 ### 快速部署
@@ -100,40 +91,34 @@ git clone https://github.com/expoli/start-bolo-with-docker-compose.git
 cd start-bolo-with-docker-compose
 ```
 
-- **加载修改后的环境变量**
-
-```shell
-export $(cat ./bolo-env.env )
-```
-
 - **使用 docker-compose 启动 bolo**
 
 ```shell
 # 后台启动
-export $(cat ./bolo-env.env ) && docker-compose up -d
+docker-compose up -d
 
 # 前台方式启动可以看到日志输出、方便进行排错
-export $(cat ./bolo-env.env ) && docker-compose up
+docker-compose up
 ```
 
 - **更新容器**
 
 ```shell
-export $(cat ./bolo-env.env ) && docker-compose pull && docker-compose up -d
+docker-compose pull && docker-compose up -d
 ```
 
 - **删除容器与 docker 网络（但保留关键数据）**
 
 ```shell
-export $(cat ./bolo-env.env ) && docker-compose down
+docker-compose down
 ```
 
-- **完全删除  危险！！！**
+- **完全删除**
 
-如果你想完全卸载 bolo 只需要运行以下命令，此命令会删除 MySQL 数据卷 **危险**、**因为mysql数据库文件放在了docker volume里面**
+如果你想完全卸载 bolo 只需要运行以下命令
 
 ```shell
-export $(cat ./bolo-env.env ) && docker-compose down --volume
+rm start-bolo-with-docker-compose -rf
 ```
 
 ### 迁移
@@ -142,11 +127,17 @@ export $(cat ./bolo-env.env ) && docker-compose down --volume
 
 ```shell
 # Backup
-docker exec CONTAINER /usr/bin/mysqldump -u root --password=root DATABASE > backup.sql
+zip -r start-bolo-with-docker-compose.zip start-bolo-with-docker-compose
 
 # Restore
-cat backup.sql | docker exec -i CONTAINER /usr/bin/mysql -u root --password=root DATABASE
+unzip start-bolo-with-docker-compose.zip
 ```
+
+### 性能监控
+
+默认 traefik 已经开启了 `prometheus` 性能监控功能、可配合 `Grafana` 进行使用，最终效果如图
+
+![Traefik](image/Traefik-2-2-Copy-Grafana.png)
 
 ### 启用定时更新
 
@@ -158,7 +149,7 @@ cat backup.sql | docker exec -i CONTAINER /usr/bin/mysql -u root --password=root
 1. 手动运行定时命令进行测试
 
 ```bash
-cd /path/to/your/docker-compose && export $(cat ./bolo-env.env ) && docker-compose pull && docker-compose down && docker-compose up -d
+cd /path/to/your/docker-compose && docker-compose pull && docker-compose down && docker-compose up -d
 ```
 
 2. 确认运行无误之后将其添加至定时任务中
@@ -195,98 +186,87 @@ cd /path/to/your/docker-compose && export $(cat ./bolo-env.env ) && docker-compo
 version: '3'
 
 services:
+
+  traefik:
+    image: "traefik"
+    container_name: "traefik"
+    restart: always
+    command:
+#      - "--log.level=DEBUG"
+#      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesResolvers.myresolver.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+#      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      ############
+      # 修改为自己的邮箱地址
+      ############
+      - "--certificatesresolvers.myresolver.acme.email=me@example.org"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # prometheus 数据监控、如不需要可注释掉
+      - "--metrics.prometheus=true"
+      - "--entryPoints.metrics.address=:9090"
+      - "--metrics.prometheus.entryPoint=metrics"
+      # http 跳转至 https
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+    network_mode: host
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   db:
-    image: mariadb
+    image: mysql:5.7
     command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
-      - db:/var/lib/mysql
-    # environment:
-    #   - MYSQL_ROOT_PASSWORD=
-    #   - MYSQL_PASSWORD=
-    #   - MYSQL_DATABASE=
-    #   - MYSQL_USER=
+      - ./mysql/data:/var/lib/mysql
     env_file:
       - bolo-env.env
-
-  web:
-    build: ./web
-    restart: always
-    volumes:
-      - bolo:/var/www/html:ro
-    # environment:
-    #   - VIRTUAL_HOST=
-    #   - LETSENCRYPT_HOST=
-    #   - LETSENCRYPT_EMAIL=
-    depends_on:
-      - bolo
-    env_file:
-      - letsencrypt.env
-    networks:
-      - proxy-tier
+    networks: 
       - default
-
-  proxy:
-    build: ./proxy
-    restart: always
-    ports:
-      - 80:80
-      - 443:443
-    labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
-    volumes:
-      - certs:/etc/nginx/certs:ro
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    # environment:
-    #   - ENABLE_IPV6=true
-    networks:
-      - proxy-tier
-
-  letsencrypt-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    restart: always
-    volumes:
-      - certs:/etc/nginx/certs
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    # environment:
-    #   - DEFAULT_EMAIL=
-    env_file:
-      - letsencrypt.env
-    networks:
-      - proxy-tier
-    depends_on:
-      - proxy
 
   bolo:
     image: tangcuyu/bolo-solo:latest
     restart: always
+    container_name: "bolo"
     expose:
       - "8080"
+    # 主题与文章挂载目录
+    volumes: 
+      - /etc/localtime:/etc/localtime:ro
+    #   - ./web/markdowns:/opt/solo/markdowns:rw
+    #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
     env_file:
       - bolo-env.env
-    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT} --lute_http=http://lute:8249
+    command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org --server_port=443 --lute_http=http://lute:8249
+    dns: 8.8.8.8
+    labels:
+      - traefik.enable=true
+      - traefik.port=8080
+      - traefik.http.routers.bolo.rule=Host(`blog.example.org`)
+      - traefik.http.routers.bolo.tls=true
+      - "traefik.http.routers.cloudreve.entrypoints=websecure"
+      - traefik.http.routers.bolo.tls.certresolver=myresolver
     depends_on:
       - db
+    networks:
+      - default
 
   lute:
     image: b3log/lute-http
     restart: always 
     expose: 
       - "8249"
-
-volumes:
-  db:
-  bolo:
-  certs:
-  vhost.d:
-  html:
+    networks: 
+      - default
 
 networks:
-  proxy-tier:
+  default:
+
 ```
 
 </details>

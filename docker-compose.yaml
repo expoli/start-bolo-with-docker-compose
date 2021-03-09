@@ -1,98 +1,83 @@
 version: '3'
 
 services:
+
+  traefik:
+    image: "traefik"
+    container_name: "traefik"
+    restart: always
+    command:
+#      - "--log.level=DEBUG"
+#      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesResolvers.myresolver.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+#      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      ############
+      # 修改为自己的邮箱地址
+      ############
+      - "--certificatesresolvers.myresolver.acme.email=me@example.org"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # prometheus 数据监控、如不需要可注释掉
+      - "--metrics.prometheus=true"
+      - "--entryPoints.metrics.address=:9090"
+      - "--metrics.prometheus.entryPoint=metrics"
+      # http 跳转至 https
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+    network_mode: host
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   db:
-    image: mariadb
+    image: mysql:5.7
     command: --max_allowed_packet=32505856 --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
-      - db:/var/lib/mysql
-    # environment:
-    #   - MYSQL_ROOT_PASSWORD=
-    #   - MYSQL_PASSWORD=
-    #   - MYSQL_DATABASE=
-    #   - MYSQL_USER=
+      - ./mysql/data:/var/lib/mysql
     env_file:
       - bolo-env.env
-
-  web:
-    build: ./web
-    restart: always
-    volumes:
-      - bolo:/var/www/html:ro
-    # environment:
-    #   - VIRTUAL_HOST=
-    #   - LETSENCRYPT_HOST=
-    #   - LETSENCRYPT_EMAIL=
-    depends_on:
-      - bolo
-    env_file:
-      - letsencrypt.env
-    networks:
-      - proxy-tier
+    networks: 
       - default
-
-  proxy:
-    build: ./proxy
-    restart: always
-    container_name: bolo_nginx_proxy
-    ports:
-      - 80:80
-      - 443:443
-    labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen: "true"
-    volumes:
-      - certs:/etc/nginx/certs:ro
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    # environment:
-    #   - ENABLE_IPV6=true
-    networks:
-      - proxy-tier
-
-  letsencrypt-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    restart: always
-    volumes:
-      - certs:/etc/nginx/certs
-      - vhost.d:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    dns: 8.8.8.8
-    environment:
-      - NGINX_DOCKER_GEN_CONTAINER=bolo_nginx_proxy   # nginx 容器名称
-    #   - DEFAULT_EMAIL=
-    networks:
-      - proxy-tier
-    depends_on:
-      - proxy
 
   bolo:
     image: tangcuyu/bolo-solo:latest
     restart: always
+    container_name: "bolo"
     expose:
       - "8080"
+    # 主题与文章挂载目录
+    volumes: 
+      - /etc/localtime:/etc/localtime:ro
+    #   - ./web/markdowns:/opt/solo/markdowns:rw
+    #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
     env_file:
       - bolo-env.env
+    command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org --server_port=443 --lute_http=http://lute:8249
     dns: 8.8.8.8
-    command: --listen_port=${LISTEN_PORT} --server_scheme=${SERVER_SCHEME} --server_host=${SERVER_HOST} --server_port=${SERVER_PORT} --lute_http=http://lute:8249
+    labels:
+      - traefik.enable=true
+      - traefik.port=8080
+      - traefik.http.routers.bolo.rule=Host(`blog.example.org`)
+      - traefik.http.routers.bolo.tls=true
+      - "traefik.http.routers.cloudreve.entrypoints=websecure"
+      - traefik.http.routers.bolo.tls.certresolver=myresolver
     depends_on:
       - db
+    networks:
+      - default
 
   lute:
     image: b3log/lute-http
     restart: always 
     expose: 
       - "8249"
-
-volumes:
-  db:
-  bolo:
-  certs:
-  vhost.d:
-  html:
+    networks: 
+      - default
 
 networks:
-  proxy-tier:
+  default:
