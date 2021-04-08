@@ -62,21 +62,6 @@ JDBC_URL=jdbc:mysql://db:3306/bolo?useUnicode=yes&characterEncoding=UTF-8&useSSL
 
 详情请参考：[Solo 用户指南](https://hacpai.com/article/1492881378588)
 
-### 启用HTTPS
-
-**注意：启用HTTPS时需保证你的主机拥有公网IP且、80 443 端口可以被正常访问，否则有可能自动颁发证书失败**
-
-修改相应的字段值为自己所需，可对 `docker-compose.yaml` 中的 `blog.example.org` 进行批量替换
-
-```bash
-# 请修改为自己的邮箱地址
-- "--certificatesresolvers.myresolver.acme.email=me@example.org"
-
-# 请将 blog.example.org 修改为你自己的博客域名
-command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org --server_port=443 --lute_http=http://lute:8249
-- traefik.http.routers.bolo.rule=Host(`blog.example.org`)
-```
-
 ### 快速部署
 
 - **克隆本项目**
@@ -89,6 +74,21 @@ git clone https://github.com/expoli/start-bolo-with-docker-compose.git
 
 ```shell
 cd start-bolo-with-docker-compose
+```
+
+- **修改配置文件**
+
+**启用HTTPS**，**注意：启用HTTPS时需保证你的主机拥有公网IP且、80 443 端口可以被正常访问，否则有可能自动颁发证书失败**
+
+修改相应的字段值为自己所需，可对 `docker-compose.yaml` 中的 `blog.example.org` 进行批量替换
+
+```bash
+# 请修改为自己的邮箱地址
+- "--certificatesresolvers.myresolver.acme.email=me@example.org"
+
+# 请将 blog.example.org 修改为你自己的博客域名
+command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org --server_port=443 --lute_http=http://lute:8249
+- traefik.http.routers.bolo.rule=Host(`blog.example.org`)
 ```
 
 - **使用 docker-compose 启动 bolo**
