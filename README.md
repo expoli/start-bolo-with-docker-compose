@@ -23,7 +23,10 @@
 
 > 一键部署脚本传送门(傻瓜式、欢迎试用) [https://github.com/expoli/start-bolo](https://github.com/expoli/start-bolo)
 
-**注意：本项目使用 nginx 的反向代理作为 bolo 的 web 服务器、支持一键式的http & https 部署（默认占用了80、443 端口）。**
+**注意：本项目使用 traefik 的反向代理作为 bolo 的 web 服务器、支持一键式的http & https 部署（默认占用了80、443 端口）。**
+
+> nginx web server 请下载 [1.4 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.4)
+> nginx web server 手动配置证书 [1.3 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.3)
 
 ## 快速开始
 
