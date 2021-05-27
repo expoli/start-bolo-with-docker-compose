@@ -28,13 +28,13 @@ services:
       # http 跳转至 https
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-    network_mode: host
+#     network_mode: host
     # 如果遇到找不到 bolo 容器地址的报错提示请注释上一行、打开以下注释
-#     ports:
-#       - 80:80
-#       - 443:443
-#     networks:
-#       - default
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - default
     volumes:
       - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
