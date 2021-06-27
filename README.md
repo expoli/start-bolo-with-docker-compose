@@ -96,6 +96,11 @@ command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org
 - traefik.http.routers.bolo.rule=Host(`blog.example.org`)
 ```
 
+**如果要多域名访问，请按下例修改**
+```yaml
+- traefik.http.routers.bolo.rule=Host(`blog.example.org`) || Host(`www.example.org`)
+```
+
 - **使用 docker-compose 启动 bolo**
 
 ```shell
