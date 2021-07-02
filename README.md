@@ -11,7 +11,7 @@
 <img src="https://img.shields.io/docker/cloud/build/tangcuyu/bolo-solo?style=flat-square">
 <img src="https://img.shields.io/docker/pulls/tangcuyu/bolo-solo.svg?style=flat-square">
 <img src="https://img.shields.io/docker/v/tangcuyu/bolo-solo?sort=date&style=flat-square">
-<img alt="Docker Image Version (latest semver)" src="https://img.shields.io/docker/v/tangcuyu/bolo-solo?sort=semver&style=flat-square">
+<!-- <img alt="Docker Image Version (latest semver)" src="https://img.shields.io/docker/v/tangcuyu/bolo-solo?sort=semver&style=flat-square"> -->
 <!-- <img src="https://img.shields.io/github/v/expoli/start-bolo-with-docker-compose?style=flat-square"> -->
 <!-- <img src="https://img.shields.io/github/issues/expoli/start-bolo-with-docker-compose?style=flat-square"> -->
 <!-- <img src="https://img.shields.io/github/commit-activity/y/expoli/start-bolo-with-docker-compose?style=flat-square"> -->
@@ -27,6 +27,8 @@
 
 > nginx web server 请下载 [1.4 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.4)
 > nginx web server 手动配置证书 [1.3 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.3)
+
+> 2.2 版本为兼容 **arm64** 设备，将默认数据库由 `MySQL` 更改为 `mariadb` **使用时注意数据备份**
 
 ## 快速开始
 
@@ -133,7 +135,7 @@ rm start-bolo-with-docker-compose -rf
 
 ### 迁移
 
-因为 mysql 的相关数据直接映射到了本地所以**直接打包文件夹**、然后在新机器上**直接解压启动**。
+因为数据库的相关数据直接映射到了本地所以**直接打包文件夹**、然后在新机器上**直接解压启动**。（注：2.2 版本之前默认使用 Mysql 数据库，2.2 版本采用 mariadb ，进行迁移的时候建议使用 `mysqldump` 工具对数据进行备份导出与还原，保证信息可用性。
 
 ```shell
 # Backup
