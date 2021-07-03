@@ -1,7 +1,7 @@
 <p align = "center">
 <img alt="Bolo" src="image/bolo-circle.png" height="200px" width="200px">
 <br><br>
-使用 docker-compose 一键启动 bolo 博客
+使用 docker-compose 一键启动 Bolo 博客
 <br>
 <img src="https://img.shields.io/github/last-commit/expoli/start-bolo-with-docker-compose.svg?style=flat-square">
 <img src="https://img.shields.io/github/issues-pr-closed/expoli/start-bolo-with-docker-compose.svg?style=flat-square">
@@ -19,20 +19,20 @@
 
 # 简介
 
-本项目专注于使用 docker-compsoe 进行容器的编排，实现 bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性，同时也增加了 `Let's Encrypt` SSL证书的自动配置与续签。
+本项目专注于使用 docker-compose 进行容器的编排，实现 Bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性，同时也增加了 `Let's Encrypt` SSL证书的自动配置与续签。
 
 > 一键部署脚本传送门(傻瓜式、欢迎试用) [https://github.com/expoli/start-bolo](https://github.com/expoli/start-bolo)
 
-**注意：本项目使用 traefik 的反向代理作为 bolo 的 web 服务器、支持一键式的http & https 部署（默认占用了80、443 端口）。**
+**注意：本项目使用 Traefik 的反向代理作为 Bolo 的 Web 服务器、支持一键式的 HTTP & HTTPS 部署（默认占用了80、443 端口）。**
 
-> nginx web server 请下载 [1.4 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.4)
-> nginx web server 手动配置证书 [1.3 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.3)
+> Nginx Web Server 请下载 [1.4 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.4)
+> Nginx Web Server 手动配置证书 [1.3 版本](https://github.com/expoli/start-bolo-with-docker-compose/releases/tag/v1.3)
 
-> 2.2 版本为兼容 **arm64** 设备，将默认数据库由 `MySQL` 更改为 `mariadb` **使用时注意数据备份**
+> 2.2 版本为兼容 **ARM64** 设备，将默认数据库由 `MySQL` 更改为 `MariaDB` **使用时注意数据备份**
 
 ## 快速开始
 
-### 安装 Dcoker 以及 docker-compose 运行环境
+### 安装 Docker 以及 docker-compose 运行环境
 
 [1. 安装 Docker](https://docs.docker.com/engine/install/)
 
@@ -40,7 +40,7 @@
 
 ### 服务器部署
 
-默认 bolo 的访问域名为 expoli.tech，请根据需要同步修改 `bolo-env.env` 中的各环境变量， **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [快速部署](#快速部署)，进行后续步骤即可。
+默认 Bolo 的访问域名为 expoli.tech，请根据需要同步修改 `bolo-env.env` 中的各环境变量， **强烈建议将数据库密码修改为强密码！同时别忘对所有密码项进行同步更改！** 修改完成后根据 [快速部署](#快速部署)，进行后续步骤即可。
 
 ```
 # mysql env
@@ -103,7 +103,7 @@ command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org
 - traefik.http.routers.bolo.rule=Host(`blog.example.org`) || Host(`www.example.org`)
 ```
 
-- **使用 docker-compose 启动 bolo**
+- **使用 docker-compose 启动 Bolo**
 
 ```shell
 # 后台启动
@@ -119,7 +119,7 @@ docker-compose up
 docker-compose pull && docker-compose up -d
 ```
 
-- **删除容器与 docker 网络（但保留关键数据）**
+- **删除容器与 Docker 网络（但保留关键数据）**
 
 ```shell
 docker-compose down
@@ -127,7 +127,7 @@ docker-compose down
 
 - **完全删除**
 
-如果你想完全卸载 bolo 只需要运行以下命令
+如果你想完全卸载 Bolo 只需要运行以下命令
 
 ```shell
 rm start-bolo-with-docker-compose -rf
@@ -135,7 +135,7 @@ rm start-bolo-with-docker-compose -rf
 
 ### 迁移
 
-因为数据库的相关数据直接映射到了本地所以**直接打包文件夹**、然后在新机器上**直接解压启动**。（注：2.2 版本之前默认使用 Mysql 数据库，2.2 版本采用 mariadb ，进行迁移的时候建议使用 `mysqldump` 工具对数据进行备份导出与还原，保证信息可用性。
+因为数据库的相关数据直接映射到了本地所以**直接打包文件夹**、然后在新机器上**直接解压启动**。（注：2.2 版本之前默认使用 MySQL 数据库，2.2 版本采用 MariaDB ，进行迁移的时候建议使用 `mysqldump` 工具对数据进行备份导出与还原，保证信息可用性。
 
 ```shell
 # Backup
@@ -180,10 +180,10 @@ cd /path/to/your/docker-compose && docker-compose pull && docker-compose down &&
 
 再确认已经启动完成之后、使用浏览器访问您设置的对应域名即可完成博客的初始化。
 
-- bolo 初始化界面
+- Bolo 初始化界面
 ![bolo 初始化界面](image/2020-03-22_09-32-bolo-admin.png)
 
-- bolo 初始化完成界面
+- Bolo 初始化完成界面
 ![bolo 初始化完成界面](image/2020-03-22_09-41-bolo-init-success.png)
 </details>
 
