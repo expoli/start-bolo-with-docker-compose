@@ -70,7 +70,7 @@ services:
       - traefik.port=8080
       - traefik.http.routers.bolo.rule=Host(`blog.example.org`)
       - traefik.http.routers.bolo.tls=true
-      - "traefik.http.routers.cloudreve.entrypoints=websecure"
+      - traefik.http.routers.bolo.entrypoints=websecure
       - traefik.http.routers.bolo.tls.certresolver=myresolver
     depends_on:
       - db
