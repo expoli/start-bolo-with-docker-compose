@@ -19,6 +19,8 @@
 
 # 简介
 
+## 注意：本配置方式不支持宝塔用户、BT用户请自行尝试裸启动 [tangcuyu/bolo-solo](https://hub.docker.com/repository/docker/tangcuyu/traefik/general) 镜像、BT用户不在解答范围。
+
 本项目专注于使用 docker-compose 进行容器的编排，实现 Bolo 博客的一键启动，以避免广大人民群众在进行 bolo 部署时走不必要的弯路；降低了使用门槛，同时也大大增加了维护与迁移的便利性，同时也增加了 `Let's Encrypt` SSL证书的自动配置与续签。
 
 > 一键部署脚本传送门(傻瓜式、欢迎试用) [https://github.com/expoli/start-bolo](https://github.com/expoli/start-bolo)
