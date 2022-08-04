@@ -60,7 +60,7 @@ services:
     volumes: 
       - /etc/localtime:/etc/localtime:ro
     #   - ./web/markdowns:/opt/solo/markdowns:rw
-    #   - ./theme/solo-nexmoe:/opt/solo/skins/nexmoe
+    #   - ./theme/solo-nexmoe:/opt/bolo/skins/nexmoe
     env_file:
       - bolo-env.env
     command: --listen_port=8080 --server_scheme=https --server_host=blog.example.org --server_port=443 --lute_http=http://lute:8249
